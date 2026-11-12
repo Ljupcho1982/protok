@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="mk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Проток</title>
+  <meta name="description" content="Проток: агенти што ги предвидуваат редиците на безбедносна контрола и го пренасочуваат персоналот.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a1018'/%3E%3Cpath d='M6 20c4 0 4-8 8-8s4 8 8 8 4-6 4-6' fill='none' stroke='%2346d4c0' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <a class="skip" href="#main" data-t="skip"></a>
+  <header class="topbar">
+    <div class="bar">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" class="mark-bg"/><path d="M8 25c5 0 5-10 10-10s5 10 10 10 4-7 4-7" class="mark-line"/><circle cx="32" cy="18" r="2.4" class="mark-dot"/></svg>
+        <div class="brand-text"><b>Проток</b><span data-t="tagline"></span></div>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Views">
+        <button role="tab" data-tab="ops" data-t="tab.ops"></button>
+        <button role="tab" data-tab="bench" data-t="tab.bench"></button>
+        <button role="tab" data-tab="how" data-t="tab.how"></button>
+      </nav>
+      <div class="transport">
+        <div class="clock" aria-live="off"><span id="clock" class="mono">04:00</span><small id="clockSub"></small></div>
+        <button id="btnPlay" class="btn btn-primary btn-play" aria-keyshortcuts="Space"></button>
+        <button id="btnStep" class="btn btn-icon" aria-keyshortcuts="ArrowRight"></button>
+        <div class="seg" id="speed" role="radiogroup"></div>
+        <button id="btnReset" class="btn btn-icon btn-ghost" aria-keyshortcuts="R"></button>
+      </div>
+      <div class="prefs">
+        <button id="btnLang" class="btn btn-ghost mono"></button>
+        <button id="btnTheme" class="btn btn-icon btn-ghost"></button>
+      </div>
+    </div>
+    <div class="timeline" id="timeline">
+      <div class="tl-track" id="tlTrack" role="slider" tabindex="0" aria-valuemin="240" aria-valuemax="1380"></div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="view-ops" class="view">
+      <div class="status" id="status" aria-live="polite"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="layout">
+        <div class="col-main">
+          <section class="panel map-panel">
+            <header class="panel-h"><h2 data-t="map"></h2><span class="hint" data-t="mapHint"></span></header>
+            <div class="map" id="map"></div>
+          </section>
+          <section class="panel">
+            <header class="panel-h">
+              <h2 id="detailTitle"></h2>
+              <div class="seg" id="range" role="radiogroup"></div>
+            </header>
+            <div class="detail" id="detail"></div>
+            <div class="legend" id="legend"></div>
+          </section>
+          <section class="panel">
+            <header class="panel-h"><h2 data-t="feed"></h2></header>
+            <ol class="feed" id="feed"></ol>
+          </section>
+        </div>
+        <aside class="col-side">
+          <section class="panel">
+            <header class="panel-h"><h2 data-t="alerts"></h2><span class="count" id="alertCount"></span></header>
+            <div class="alerts" id="alerts"></div>
+          </section>
+          <section class="panel">
+            <header class="panel-h"><h2 data-t="board"></h2></header>
+            <div class="table-wrap"><table class="board" id="board"></table></div>
+          </section>
+        </aside>
+      </div>
+      <section class="panel bus-panel">
+        <header class="panel-h"><h2 data-t="bus"></h2><span class="count" id="busCount"></span></header>
+        <div class="filters" id="busFilter" role="radiogroup"></div>
+        <div class="bus" id="bus"></div>
+      </section>
+      <p class="sim-note" data-t="simnote"></p>
+    </section>
+
+    <section id="view-bench" class="view" hidden>
+      <div class="bench-wrap">
+        <section class="panel">
+          <h2 class="big" data-t="bench.h"></h2>
+          <p class="lead" data-t="bench.p"></p>
+          <div class="bench-ctl">
+            <div class="seg" id="benchDays" role="radiogroup"></div>
+            <button id="btnBench" class="btn btn-primary"></button>
+            <div class="progress" id="benchProg" hidden><i></i><span></span></div>
+          </div>
+        </section>
+        <div id="benchOut"></div>
+      </div>
+    </section>
+
+    <section id="view-how" class="view" hidden>
+      <div class="how" id="how"></div>
+    </section>
+  </main>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="tip" id="tip" role="tooltip" hidden></div>
+  <div class="busy" id="busy" hidden><div class="spinner"></div><span id="busyText"></span></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

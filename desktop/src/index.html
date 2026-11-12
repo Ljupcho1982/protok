@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Protok · Airport Ops</title>
+  <meta name="description" content="Protok: agents that forecast security queues and move staff before the queue builds. Simulated data.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='6' transform='rotate(45 16 16)' fill='%231d4f86'/%3E%3Cpath d='M9 18c3 0 3-5 7-5s4 5 7 5' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+  <style>/*CSS*/</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="6" width="28" height="28" rx="7" transform="rotate(45 20 20)" class="mark-bg"/><path d="M11 22c3.5 0 3.5-6 9-6s5.5 6 9 6" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/></svg>
+      <div><h1>Protok</h1><p>Monte Carlo forecast · staff reallocation · simulated terminal</p></div>
+    </div>
+    <nav class="toptabs" role="tablist" aria-label="Views">
+      <button role="tab" data-tab="ops">Overview</button>
+      <button role="tab" data-tab="data">Your data</button>
+      <button role="tab" data-tab="bench">Compare days</button>
+      <button role="tab" data-tab="how">Methodology</button>
+      <button role="tab" data-tab="guide">Guide</button>
+    </nav>
+    <div class="topbar-right">
+      <span class="scenario" id="scenarioName"></span>
+      <button class="ghost" id="btnHelp" title="Guide and step-by-step tours">? Help</button>
+      <button class="ghost" id="btnDefaults">Restore defaults</button>
+      <div class="seg theme" id="theme" role="radiogroup" aria-label="Theme"></div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section id="view-ops" class="view">
+      <section class="scene-wrap">
+        <div class="scene" id="scene">
+          <div class="scene-fallback" id="sceneFallback" hidden><b>3D view is not available here</b><span>This computer's browser has WebGL turned off. Every number below still works.</span></div>
+        </div>
+        <div class="hud hud-tl">
+          <div class="clock"><span id="clock">04:00</span><small id="clockSub">simulated time</small></div>
+          <div id="hudStatus"></div>
+        </div>
+        <div class="hud hud-tr legend3d">
+          <span><i class="sw ok"></i>lane open</span><span><i class="sw add"></i>added by agent</span><span><i class="sw gone"></i>moved away</span><span><i class="sw off"></i>closed</span>
+          <span><i class="dot acc"></i>waiting</span><span><i class="dot lim"></i>&gt; 7 min</span><span><i class="dot over"></i>&gt; 10 min</span>
+        </div>
+        <div class="hud hud-hint">Drag to rotate · scroll to zoom · double-click to reset · click a zone</div>
+        <div class="player">
+          <div class="transport">
+            <button id="btnPlay" class="btn primary play" aria-keyshortcuts="Space"></button>
+            <button id="btnStep" class="btn icon" aria-keyshortcuts="ArrowRight"></button>
+            <div class="seg" id="speed" role="radiogroup" aria-label="Speed"></div>
+            <button id="btnReset" class="btn icon" aria-keyshortcuts="R"></button>
+          </div>
+          <div class="timeline"><div class="tl-track" id="tlTrack" role="slider" tabindex="0" aria-label="Day timeline" aria-valuemin="240" aria-valuemax="1380"></div></div>
+        </div>
+      </section>
+
+      <div class="layout">
+        <aside class="inputs-col">
+          <div class="col-h"><h2>Parameters</h2><span class="note-r">changes restart the simulated day</span></div>
+          <div class="tabs" id="ptabs" role="tablist">
+            <button class="tab" data-p="scenario">Scenario</button>
+            <button class="tab" data-p="agents">Agents</button>
+            <button class="tab" data-p="rules">Fixed rules</button>
+          </div>
+          <div class="groups" id="params"></div>
+          <div class="apply-bar" id="applyBar" hidden>
+            <span>Parameters changed</span>
+            <button class="btn" id="btnDiscard">Discard</button>
+            <button class="btn primary" id="btnApply">Apply and rerun</button>
+          </div>
+          <section class="panel">
+            <h3>Departures <span class="h-sub">next 5 hours</span></h3>
+            <div class="table-scroll"><table class="results board" id="board"></table></div>
+          </section>
+        </aside>
+
+        <section class="results-col">
+          <div class="banner" id="status" aria-live="polite"></div>
+          <div class="kpis" id="kpis"></div>
+          <section class="panel">
+            <h3>Security zones now</h3>
+            <div class="table-scroll"><table class="results" id="zoneTable"></table></div>
+          </section>
+          <section class="panel">
+            <div class="panel-h"><h3 id="detailTitle"></h3><div class="seg sm" id="range" role="radiogroup" aria-label="Range"></div></div>
+            <div class="detail" id="detail"></div>
+            <div class="legend" id="legend"></div>
+          </section>
+          <div class="chart-row">
+            <section class="panel">
+              <h3>Utilisation next hour <span class="h-sub">forecast arrivals ÷ open lane capacity</span></h3>
+              <div class="bars" id="util"></div>
+            </section>
+            <section class="panel">
+              <h3>Live feed <span class="count" id="feedCount"></span></h3>
+              <ol class="feed" id="feed"></ol>
+            </section>
+          </div>
+          <section class="panel">
+            <h3>Staff notifications <span class="count" id="alertCount"></span></h3>
+            <div class="alerts" id="alerts"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-h"><h3>Agent log</h3><span class="h-sub" id="busCount"></span></div>
+            <div class="filters" id="busFilter" role="radiogroup" aria-label="Filter by agent"></div>
+            <div class="bus" id="bus"></div>
+          </section>
+        </section>
+      </div>
+      <p class="footer">Every flight, passenger and event is invented. This is a simulation and is not connected to any real airport.</p>
+    </section>
+
+    <section id="view-data" class="view pad" hidden>
+      <div class="data-layout">
+        <aside class="data-in">
+          <section class="panel">
+            <h3>1 · Your flight schedule</h3>
+            <label class="dropzone" id="dropzone">
+              <input type="file" id="fileIn" accept=".xlsx,.csv,.tsv,.txt" multiple hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/></svg>
+              <strong>Drop an Excel or CSV file here</strong>
+              <span>or click to choose · .xlsx, .csv, .tsv</span>
+            </label>
+            <div class="data-actions">
+              <button class="btn" id="btnTemplate">Download template</button>
+              <button class="btn" id="btnExample">Load an example day</button>
+            </div>
+            <div class="sheet-box" id="sheetBox" hidden>
+              <div class="sheet-meta" id="sheetMeta"></div>
+              <label class="sheet-field">Sheet <select id="sheetSel"></select></label>
+              <label class="sheet-field">Read as <select id="modeSel"><option value="flights">Flight list (one row per flight)</option><option value="hourly">Hourly departures (passengers per hour)</option></select></label>
+              <label class="sheet-field" id="hourZoneWrap" hidden>Zone for these passengers <select id="hourZone"><option value="A">A</option><option value="B">B</option><option value="C" selected>C</option></select></label>
+              <p class="note">Hourly departures become flights of about 160 passengers each, one row per flight, which you can then check and edit below.</p>
+            </div>
+            <details class="paste">
+              <summary>Or paste rows copied from Excel</summary>
+              <textarea id="pasteIn" rows="6" spellcheck="false" placeholder="Time&#9;Flight&#9;To&#9;Zone&#9;Pax&#9;Type&#10;06:10&#9;F101&#9;Vienna&#9;A&#9;142&#9;short"></textarea>
+              <button class="btn" id="btnPaste">Read pasted rows</button>
+            </details>
+            <p class="note">One row per departure. Columns: <b>Time</b> (HH:MM), <b>Flight</b>, <b>To</b>, <b>Zone</b> (A, B or C), <b>Pax</b> (expected passengers) and optional <b>Type</b> (short, lowcost or long: how early people come to the airport). English or Macedonian headers are recognised and the column order does not matter. Nothing leaves this computer.</p>
+          </section>
+          <section class="panel">
+            <div class="panel-h"><h3>2 · Check and edit <span class="count" id="rowCount"></span></h3>
+              <div class="row-actions"><button class="mini-btn" id="btnAddRow">+ Row</button><button class="mini-btn" id="btnExport">Export CSV</button><button class="mini-btn" id="btnClear">Clear</button></div></div>
+            <div class="sev" id="sev"></div>
+            <ul class="issues" id="issues"></ul>
+            <div class="data-table-wrap"><table class="results data-table" id="dataTable"></table></div>
+          </section>
+          <section class="panel">
+            <h3>3 · Analyse</h3>
+            <div class="field"><span class="field-label">Scripted disruptions<small>adds the demo feed: gate change, delay, new flight, cancellation, absent team</small></span><span class="field-control"><button class="switch" role="switch" id="feedSw" aria-checked="false" aria-label="Scripted disruptions"></button></span></div>
+            <div class="field"><span class="field-label">Monte Carlo futures<small>per step of the analysis run</small></span><span class="field-control"><select id="aRuns"><option>30</option><option selected>60</option><option>100</option></select></span></div>
+            <div class="analyse-actions"><button class="btn primary" id="btnAnalyse">Analyse the day</button><button class="btn" id="btnUse">Use in Overview</button></div>
+            <div class="progress" id="aProg" hidden><i></i></div>
+          </section>
+        </aside>
+        <section class="data-out" id="report"></section>
+      </div>
+    </section>
+
+    <section id="view-bench" class="view pad" hidden>
+      <section class="panel lead-panel">
+        <div>
+          <h2 class="big">With and without the agent, on the same days</h2>
+          <p class="lead">Each day is a new hidden draw of passengers with your schedule, feed and parameters. The day is played twice: once on last week's roster and once with the agents. The only difference is the agent. Futures per step are fixed at 60 here so a day takes a few seconds.</p>
+        </div>
+        <div class="bench-ctl">
+          <div class="seg" id="benchDays" role="radiogroup" aria-label="Days"></div>
+          <button id="btnBench" class="btn primary"></button>
+          <div class="progress" id="benchProg" hidden><i></i></div>
+        </div>
+      </section>
+      <div id="benchOut"></div>
+    </section>
+
+    <section id="view-guide" class="view pad" hidden>
+      <div class="guide" id="guide"></div>
+    </section>
+
+    <section id="view-how" class="view pad" hidden>
+      <div class="how" id="how"></div>
+    </section>
+  </main>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="tip" id="tip" role="tooltip" hidden></div>
+<div class="busy" id="busy" hidden><div class="busy-card"><div class="spinner"></div><span id="busyText"></span><div class="busy-bar"><i id="busyBar"></i></div></div></div>
+
+<script>/*THREE*/</script>
+<script id="engine">/*ENGINE*/</script>
+<script id="worker-src" type="text/plain">/*WORKER*/</script>
+<script>/*SCENE*/</script>
+<script>/*APP*/</script>
+</body>
+</html>

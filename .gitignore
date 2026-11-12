@@ -1,0 +1,7 @@
+# generated copy used for the Cloudflare deploy (contains account cache)
+build/
+.wrangler/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
